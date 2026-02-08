@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		FCE13F3E2F38F7A60045937F /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = FCE13F3D2F38F7A60045937F /* FirebaseCore */; };
+		FCE13F7A2F3908A80045937F /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = FCE13F792F3908A80045937F /* FirebaseFirestore */; };
+		FCE13F842F3909C40045937F /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = FCE13F832F3909C40045937F /* FirebaseAuth */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,6 +30,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				FCE13F3E2F38F7A60045937F /* FirebaseCore in Frameworks */,
+				FCE13F842F3909C40045937F /* FirebaseAuth in Frameworks */,
+				FCE13F7A2F3908A80045937F /* FirebaseFirestore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -79,6 +83,8 @@
 			name = Proxy;
 			packageProductDependencies = (
 				FCE13F3D2F38F7A60045937F /* FirebaseCore */,
+				FCE13F792F3908A80045937F /* FirebaseFirestore */,
+				FCE13F832F3909C40045937F /* FirebaseAuth */,
 			);
 			productName = Proxy;
 			productReference = F01B602F2F35432B00E80160 /* Proxy.app */;
@@ -266,8 +272,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -282,6 +290,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.KevinPing.Proxy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
@@ -297,8 +306,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -313,6 +324,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.KevinPing.Proxy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
@@ -362,6 +374,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = FCE13F312F38F4160045937F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseCore;
+		};
+		FCE13F792F3908A80045937F /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FCE13F312F38F4160045937F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+		FCE13F832F3909C40045937F /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FCE13F312F38F4160045937F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

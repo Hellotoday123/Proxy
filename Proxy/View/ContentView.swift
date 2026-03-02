@@ -5,6 +5,7 @@
 //  Created by Kevin Alinazar on 2026-02-05.
 //
 
+
 import SwiftUI
 
 struct ContentView: View {
@@ -28,9 +29,7 @@ struct ContentView: View {
             .tag(0)
             
             // Tab 2: Map (Your existing map)
-            NavigationView {
-                MapView() // Make sure you have a MapView struct, or replace with Text("Map")
-            }
+            MapView()
             .tabItem {
                 Image(systemName: "map.fill")
                 Text("Map")

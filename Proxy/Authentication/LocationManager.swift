@@ -7,6 +7,7 @@
 
 import Foundation
 import CoreLocation
+import Combine
 
 class LocationManager: NSObject, ObservableObject {
     // LaSalle College: 2000 Rue Sainte-Catherine O, Montréal, QC H3H 2T2

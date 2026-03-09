@@ -5,13 +5,6 @@
 //  Created by user285973 on 2/8/26.
 //
 
-//
-//  MapView.swift
-//  Pulse
-//
-//  Created by Ping & Kevin
-//
-
 import SwiftUI
 import MapKit
 import CoreLocation
@@ -242,9 +235,7 @@ struct MapView: View {
                     }
                 }
             }
-            .mapStyle(.standard(pointsOfInterest: .including([
-                .park, .nationalPark, .school, .university, .museum, .library, .stadium
-            ])))
+            .compatibleMapStyle()
             .edgesIgnoringSafeArea(.top)
 
             // Overlay buttons
@@ -500,6 +491,25 @@ struct MapView: View {
     func seedCheckpointsToFirestore() async {
         for lm in LocalLandmark.allLandmarks {
             await viewModel.createCheckpoint(name: lm.name, type: lm.type, latitude: lm.latitude, longitude: lm.longitude)
+        }
+    }
+}
+
+extension View {
+    @ViewBuilder
+    func compatibleMapStyle() -> some View {
+        if #available(iOS 17.0, *) {
+            self.mapStyle(.standard(pointsOfInterest: .including([
+                .park,
+                .nationalPark,
+                .school,
+                .university,
+                .museum,
+                .library,
+                .stadium
+            ])))
+        } else {
+            self
         }
     }
 }

@@ -20,6 +20,12 @@ class AppViewModel: ObservableObject {
     @Published var friends: [AppUser] = []
     @Published var allUsers: [AppUser] = []
     @Published var chatMessages: [Message] = []
+    @Published var groupChats: [GroupChat] = []
+    @Published var groupMessages: [GroupMessage] = []
+    @Published var unreadGroupCounts: [String: Int] = [:]
+    @Published var currentlyOpenGroupID: String? = nil
+    
+    
 
     // Map & Location
     @Published var checkpoints: [Checkpoint] = []
@@ -33,6 +39,8 @@ class AppViewModel: ObservableObject {
     var db = Firestore.firestore()
     var userListener: ListenerRegistration?
     var checkpointChatListener: ListenerRegistration?
+    var groupMessageListeners: [String: ListenerRegistration] = [:]
+    
     let viewContext = PersistenceController.shared.container.viewContext
 
     init() {
@@ -41,4 +49,5 @@ class AppViewModel: ObservableObject {
             fetchCurrentUser()
         }
     }
+    
 }

@@ -54,7 +54,7 @@ struct AuthView: View {
                                 .cornerRadius(10)
                         }
 
-                        TextField("Email", text: $email)
+                        TextField("Email / Username", text: $email)
                             .padding()
                             .background(Color.white.opacity(0.9))
                             .cornerRadius(10)

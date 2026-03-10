@@ -19,6 +19,7 @@ extension AppViewModel {
             guard let document = snapshot, document.exists, let data = document.data() else { return }
 
             self.currentUser = AppUser(id: document.documentID, dict: data)
+            self.fetchGroupChats()
 
             if let user = self.currentUser {
                 self.saveUserToCoreData(user: user)

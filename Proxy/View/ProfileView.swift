@@ -1,74 +1,99 @@
-//
+////
 //  ProfileView.swift
 //  Proxy
 //
 //  Created by user285973 on 2/8/26.
 //
+ 
 import SwiftUI
-
+import PhotosUI
+ 
 struct ProfileView: View {
     @EnvironmentObject var viewModel: AppViewModel
     @State private var newPhotoURL: String = ""
-    
+    @State private var selectedPhoto: PhotosPickerItem? = nil
+ 
+    private var genericProfileImage: some View {
+        Image(systemName: "person.circle.fill")
+            .resizable()
+            .scaledToFill()
+            .frame(width: 120, height: 120)
+            .foregroundColor(.gray.opacity(0.5))
+            .clipShape(Circle())
+            .overlay(Circle().stroke(Color.orange, lineWidth: 3))
+    }
+ 
     var body: some View {
         VStack(spacing: 20) {
-            
-            // --- UPDATED IMAGE LOGIC ---
+ 
             // 1. Check if we have a valid URL string
-            if let urlString = viewModel.currentUser?.profilePicURL,
-               let url = URL(string: urlString), !urlString.isEmpty {
-                
-                // 2. Load the image
-                AsyncImage(url: url) { phase in
-                    switch phase {
-                    case .success(let image):
-                        // Success: Show the downloaded image
-                        image
+            if let urlString = viewModel.currentUser?.profilePicURL, !urlString.isEmpty {
+ 
+                // Base64 image (from photo picker)
+                if urlString.hasPrefix("data:image") {
+                    if let dataString = urlString.components(separatedBy: ",").last,
+                       let imageData = Data(base64Encoded: dataString),
+                       let uiImage = UIImage(data: imageData) {
+                        Image(uiImage: uiImage)
                             .resizable()
                             .scaledToFill()
                             .frame(width: 120, height: 120)
                             .clipShape(Circle())
                             .overlay(Circle().stroke(Color.orange, lineWidth: 3))
-                        
-                    case .failure:
-                        // Failure: URL is bad -> Show Generic Icon
-                        genericProfileImage
-                        
-                    case .empty:
-                        // Loading: Show Generic Icon (Instead of Spinner)
-                        genericProfileImage
-                        
-                    @unknown default:
+                    } else {
                         genericProfileImage
                     }
+ 
+                // Regular URL (from paste)
+                } else if let url = URL(string: urlString) {
+                    AsyncImage(url: url) { phase in
+                        switch phase {
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 120, height: 120)
+                                .clipShape(Circle())
+                                .overlay(Circle().stroke(Color.orange, lineWidth: 3))
+                        case .failure:
+                            genericProfileImage
+                        case .empty:
+                            genericProfileImage
+                        @unknown default:
+                            genericProfileImage
+                        }
+                    }
+                } else {
+                    genericProfileImage
                 }
+ 
             } else {
-                // 3. No URL set -> Show Generic Icon immediately
                 genericProfileImage
             }
-            // ---------------------------
-            
+            // ------------------------------
+ 
             // User Info
             Text(viewModel.currentUser?.username ?? "Loading...")
                 .font(.title2)
                 .fontWeight(.bold)
-            
+ 
             Text(viewModel.currentUser?.email ?? "")
                 .foregroundColor(.gray)
-            
+ 
             Divider()
-            
+ 
             // Update Photo Section
             VStack(alignment: .leading) {
                 Text("Update Profile Photo")
                     .fontWeight(.semibold)
                     .foregroundColor(.gray)
-                
+ 
                 HStack {
                     TextField("Paste Image URL here...", text: $newPhotoURL)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .autocapitalization(.none)
-                    
+ 
+                    // URL upload button
                     Button(action: {
                         Task {
                             await viewModel.updateProfilePic(url: newPhotoURL)
@@ -81,12 +106,37 @@ struct ProfileView: View {
                             .foregroundColor(.orange)
                     }
                     .disabled(newPhotoURL.isEmpty)
+ 
+                    // Photo picker button
+                    PhotosPicker(selection: $selectedPhoto, matching: .images) {
+                        Image(systemName: "photo.on.rectangle.angled")
+                            .resizable()
+                            .frame(width: 30, height: 30)
+                            .foregroundColor(.orange)
+                    }
+                    .onChange(of: selectedPhoto) { newValue in
+                        guard let newValue else { return }
+                        Task {
+                            do {
+                                if let data = try await newValue.loadTransferable(type: Data.self) {
+                                    if let uiImage = UIImage(data: data) {
+                                        if let jpegData = uiImage.jpegData(compressionQuality: 0.8) {
+                                            let base64String = "data:image/jpeg;base64," + jpegData.base64EncodedString()
+                                            await viewModel.updateProfilePic(url: base64String)
+                                        }
+                                    }
+                                }
+                            } catch {
+                                print("Photo picker error: \(error)")
+                            }
+                        }
+                    }
                 }
             }
             .padding()
-            
+ 
             Spacer()
-            
+ 
             // Sign Out
             Button(action: {
                 viewModel.signOut()
@@ -102,17 +152,5 @@ struct ProfileView: View {
         }
         .padding()
         .navigationTitle("Profile")
-    }
-    
-    // --- REUSABLE GENERIC ICON ---
-    // This is used for: 1. No URL, 2. Bad URL, 3. While Loading
-    var genericProfileImage: some View {
-        Image(systemName: "person.circle.fill")
-            .resizable()
-            .scaledToFill()
-            .frame(width: 120, height: 120)
-            .foregroundColor(.gray.opacity(0.5)) // Light gray looks better for placeholders
-            .clipShape(Circle())
-            .overlay(Circle().stroke(Color.orange, lineWidth: 3))
     }
 }

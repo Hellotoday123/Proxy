@@ -1,4 +1,4 @@
-//
+///
 //  MapView.swift
 //  Proxy
 //
@@ -108,6 +108,7 @@ struct MapView: View {
     @State private var showLeaderboard = false
 
     @State private var selectedDistance: DistanceFilter = .fiveKm
+    @State private var selectedType: TypeFilter = .all
     @State private var selectedLandmark: LocalLandmark?
     @State private var selectedCheckpoint: Checkpoint?
     @State private var showCheckpointChat = false
@@ -141,6 +142,22 @@ struct MapView: View {
             case .oneKm: return 0.012
             case .fiveHundredM: return 0.006
             case .twoHundredM: return 0.003
+            }
+        }
+    }
+
+    enum TypeFilter: String, CaseIterable {
+        case all = "All"
+        case school = "Schools"
+        case park = "Parks"
+        case landmark = "Landmarks"
+
+        var type: String? {
+            switch self {
+            case .all: return nil
+            case .school: return "school"
+            case .park: return "park"
+            case .landmark: return "landmark"
             }
         }
     }
@@ -278,6 +295,41 @@ struct MapView: View {
 
                 Spacer()
 
+                // Type filter bar
+                HStack(spacing: 6) {
+                    ForEach(TypeFilter.allCases, id: \.self) { filter in
+                        Button {
+                            selectedType = filter
+                            viewModel.saveLandmarkFilter(filter.rawValue)
+                        } label: {
+                            Text(filter.rawValue)
+                                .font(.system(size: 11, weight: .bold))
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 7)
+                                .background(
+                                    Group {
+                                        if selectedType == filter {
+                                            colorForTypeFilter(filter)
+                                        } else {
+                                            Color.white.opacity(0.15)
+                                        }
+                                    }
+                                )
+                                .foregroundColor(selectedType == filter ? .white : .primary)
+                                .cornerRadius(14)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 14)
+                                        .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                                )
+                        }
+                    }
+                }
+                .padding(.horizontal, 8)
+                .padding(.vertical, 8)
+                .background(.ultraThinMaterial)
+                .cornerRadius(20)
+                .padding(.horizontal, 12)
+
                 // Distance filter bar
                 HStack(spacing: 6) {
                     ForEach(DistanceFilter.allCases, id: \.self) { filter in
@@ -329,6 +381,10 @@ struct MapView: View {
                     latitudeDelta: filter.zoomDelta,
                     longitudeDelta: filter.zoomDelta
                 )
+            }
+            if let savedType = viewModel.loadLandmarkFilter(),
+               let typeFilter = TypeFilter(rawValue: savedType) {
+                selectedType = typeFilter
             }
             startSyncTimer()
             // Seed to Firestore in background (idempotent) so chat works
@@ -384,7 +440,7 @@ struct MapView: View {
         }
     }
 
-    // MARK: - Annotations (local landmarks — always visible!)
+    // MARK: - Annotations (filtered by type)
 
     var mapAnnotations: [MapItem] {
         var items: [MapItem] = []
@@ -414,8 +470,11 @@ struct MapView: View {
             ))
         }
 
-        // Local landmarks — always visible, no Firestore dependency
+        // Local landmarks — filtered by type
         for lm in LocalLandmark.allLandmarks {
+            if let typeFilter = selectedType.type, lm.type != typeFilter {
+                continue
+            }
             items.append(MapItem(
                 id: "lm_\(lm.id)",
                 name: lm.name,
@@ -439,12 +498,10 @@ struct MapView: View {
         let distanceMeters = checkDistance(to: landmark.coordinate)
 
         if distanceMeters <= 80 {
-            // Find or create a Checkpoint object for the chat
             let firestoreID = landmark.firestoreID
             if let existing = viewModel.checkpoints.first(where: { $0.id == firestoreID }) {
                 selectedCheckpoint = existing
             } else {
-                // Build a local Checkpoint so chat can open
                 selectedCheckpoint = Checkpoint(id: firestoreID, dict: [
                     "name": landmark.name,
                     "type": landmark.type,
@@ -477,6 +534,15 @@ struct MapView: View {
         if type == "school" { return .purple }
         if type == "landmark" { return brandOrange }
         return .green
+    }
+
+    func colorForTypeFilter(_ filter: TypeFilter) -> Color {
+        switch filter {
+        case .all: return brandOrange
+        case .school: return .purple
+        case .park: return .green
+        case .landmark: return brandOrange
+        }
     }
 
     func startSyncTimer() {
@@ -530,7 +596,7 @@ struct MapItem: Identifiable {
     let isFriend: Bool
     let isMe: Bool
     let checkpointType: String
-    let landmarkID: String?  // links to LocalLandmark.id for tap handling
+    let landmarkID: String?
 }
 
 // MARK: - Friend Picker Sheet (Glass UI)

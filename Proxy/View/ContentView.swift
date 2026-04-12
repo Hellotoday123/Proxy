@@ -9,16 +9,14 @@
 import SwiftUI
 
 struct ContentView: View {
-    // We use the EnvironmentObject that we will set up in Step 2
     @EnvironmentObject var viewModel: AppViewModel
     
-    // Default to the Messages tab (0)
     @State private var selectedTab = 0
     
     var body: some View {
         TabView(selection: $selectedTab) {
             
-            // Tab 1: Messages (The Inbox)
+            // Tab 1: Messages (Inbox)
             NavigationView {
                 MessagesInboxView()
             }
@@ -28,7 +26,7 @@ struct ContentView: View {
             }
             .tag(0)
             
-            // Tab 2: Map (Your existing map)
+            // Tab 2: Map (map)
             MapView()
             .tabItem {
                 Image(systemName: "map.fill")
@@ -56,6 +54,6 @@ struct ContentView: View {
             }
             .tag(3)
         }
-        .accentColor(.orange) // Sets the button color
+        .accentColor(.orange)
     }
 }

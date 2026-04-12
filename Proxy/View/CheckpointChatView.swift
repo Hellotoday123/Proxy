@@ -59,7 +59,7 @@ struct CheckpointChatView: View {
 
                 Divider()
 
-                // Show "Set Question" if no question set yet
+                // Show "Set Question"
                 if !hasQuestion {
                     VStack(spacing: 8) {
                         Text("Start the conversation!")
@@ -76,7 +76,7 @@ struct CheckpointChatView: View {
                                         question: questionText
                                     )
                                     questionText = ""
-                                    // Refresh checkpoints to get updated question
+                                    // Refresh checkpoints
                                     await viewModel.fetchNearbyCheckpoints(latitude: 0, longitude: 0)
                                 }
                             } label: {
@@ -118,7 +118,7 @@ struct CheckpointChatView: View {
                     }
                 }
 
-                // Message input (only if question is set)
+                // Message input
                 if hasQuestion {
                     Divider()
                     HStack(spacing: 8) {

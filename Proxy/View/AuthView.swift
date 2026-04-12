@@ -19,7 +19,6 @@ struct AuthView: View {
     @State private var showPassword = false
     @State private var showConfirmPassword = false
 
-    // Unique IDs to force SwiftUI to recreate the field (fixes SecureField typing bug)
     @State private var passwordFieldID = UUID()
     @State private var confirmFieldID = UUID()
 
@@ -61,7 +60,7 @@ struct AuthView: View {
                             .textInputAutocapitalization(.never)
                             .keyboardType(.emailAddress)
 
-                        // Password field — use .id() to force recreation on toggle
+                        // Password field
                         HStack {
                             if showPassword {
                                 TextField("Password", text: $password)

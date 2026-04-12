@@ -26,10 +26,8 @@ struct ProfileView: View {
     var body: some View {
         VStack(spacing: 20) {
  
-            // 1. Check if we have a valid URL string
             if let urlString = viewModel.currentUser?.profilePicURL, !urlString.isEmpty {
  
-                // Base64 image (from photo picker)
                 if urlString.hasPrefix("data:image") {
                     if let dataString = urlString.components(separatedBy: ",").last,
                        let imageData = Data(base64Encoded: dataString),
@@ -44,7 +42,6 @@ struct ProfileView: View {
                         genericProfileImage
                     }
  
-                // Regular URL (from paste)
                 } else if let url = URL(string: urlString) {
                     AsyncImage(url: url) { phase in
                         switch phase {
@@ -70,7 +67,6 @@ struct ProfileView: View {
             } else {
                 genericProfileImage
             }
-            // ------------------------------
  
             // User Info
             Text(viewModel.currentUser?.username ?? "Loading...")

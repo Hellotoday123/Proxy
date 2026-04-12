@@ -46,7 +46,6 @@ struct ChatView: View {
                     .cornerRadius(22)
 
                 Button {
-                    // send message here
                 } label: {
                     Image(systemName: "paperplane.fill")
                         .font(.system(size: 18, weight: .semibold))

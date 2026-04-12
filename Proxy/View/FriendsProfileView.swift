@@ -4,10 +4,6 @@
 //
 //  Created by user285973 on 2/8/26.
 //
-//
-//  FriendProfileView.swift
-//  Created by user285973 on 2/8/26.
-//
 
 import SwiftUI
 
@@ -62,7 +58,6 @@ struct FriendProfileView: View {
         .navigationBarTitleDisplayMode(.inline)
     }
     
-    // Helper to check friend status
     func isFriend(_ user: AppUser) -> Bool {
         return viewModel.friends.contains(where: { $0.id == user.id })
     }

@@ -21,7 +21,6 @@ struct LeaderboardView: View {
 
                 ScrollView {
                     VStack(spacing: 16) {
-                        // Podium for top 3
                         if viewModel.leaderboard.count >= 3 {
                             podiumView(
                                 first: viewModel.leaderboard[0],
@@ -57,7 +56,6 @@ struct LeaderboardView: View {
                             .padding(.top, 8)
                         }
 
-                        // Divider
                         if !viewModel.leaderboard.isEmpty {
                             HStack(spacing: 6) {
                                 Image(systemName: "list.number")
@@ -209,7 +207,7 @@ struct LeaderboardView: View {
                 .font(.system(size: 10, weight: .bold))
                 .foregroundColor(brandOrange)
 
-            // Podium block — glass style
+            // Podium block
             RoundedRectangle(cornerRadius: 12)
                 .fill(color.opacity(0.15))
                 .frame(height: height)

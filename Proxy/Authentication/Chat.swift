@@ -9,7 +9,7 @@ import FirebaseFirestore
 
 extension AppViewModel {
 
-    // MARK: - Chat Logic (Manual Mapping)
+    // MARK: - Chat Logic 
 
     func fetchMessages(for user: AppUser) {
         guard let myId = currentUser?.id else { return }

@@ -9,7 +9,7 @@ import SwiftUI
 import MapKit
 import CoreLocation
 
-// MARK: - Local landmark data (always visible, no Firestore dependency)
+// MARK: - Local landmark data
 
 struct LocalLandmark: Identifiable {
     let id: String
@@ -387,7 +387,7 @@ struct MapView: View {
                 selectedType = typeFilter
             }
             startSyncTimer()
-            // Seed to Firestore in background (idempotent) so chat works
+            // Seed to Firestore
             if !hasSynced {
                 hasSynced = true
                 Task {
@@ -445,7 +445,7 @@ struct MapView: View {
     var mapAnnotations: [MapItem] {
         var items: [MapItem] = []
 
-        // "Me" pin at LaSalle
+        // me pin
         let myName = viewModel.currentUser?.username ?? "You"
         items.append(MapItem(
             id: "me_\(viewModel.currentUser?.id ?? "self")",
@@ -470,7 +470,7 @@ struct MapView: View {
             ))
         }
 
-        // Local landmarks — filtered by type
+        // Local landmarks
         for lm in LocalLandmark.allLandmarks {
             if let typeFilter = selectedType.type, lm.type != typeFilter {
                 continue
@@ -559,7 +559,7 @@ struct MapView: View {
         }
     }
 
-    // MARK: - Seed to Firestore (background, idempotent)
+    // MARK: - Seed to Firestore
 
     func seedCheckpointsToFirestore() async {
         for lm in LocalLandmark.allLandmarks {
@@ -599,7 +599,7 @@ struct MapItem: Identifiable {
     let landmarkID: String?
 }
 
-// MARK: - Friend Picker Sheet (Glass UI)
+// MARK: - Friend Picker Sheet
 
 struct FriendPickerSheet: View {
     let friends: [AppUser]

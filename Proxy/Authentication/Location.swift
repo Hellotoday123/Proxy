@@ -57,7 +57,6 @@ extension AppViewModel {
     }
 
     func createCheckpoint(name: String, type: String, latitude: Double, longitude: Double) async {
-        // Deterministic ID from name so seeding is idempotent
         let docID = name.lowercased()
             .replacingOccurrences(of: " ", with: "-")
             .replacingOccurrences(of: "(", with: "")

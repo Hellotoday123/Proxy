@@ -19,7 +19,6 @@ struct AppUser: Identifiable {
     var lastLocationUpdate: Date?
     var points: Int
     
-    // Manual Dictionary Initializer to fix the compiler errors
     init(id: String, dict: [String: Any]) {
         self.id = id
         self.email = dict["email"] as? String ?? ""

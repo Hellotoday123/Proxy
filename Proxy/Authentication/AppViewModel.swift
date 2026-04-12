@@ -35,7 +35,6 @@ class AppViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage = ""
 
-    // NOTE: must NOT be private anymore (separate files need access)
     var db = Firestore.firestore()
     var userListener: ListenerRegistration?
     var checkpointChatListener: ListenerRegistration?

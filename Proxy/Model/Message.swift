@@ -8,7 +8,7 @@ import Foundation
 import FirebaseFirestore
 
 struct Message: Identifiable {
-    let id: String // Use the document ID or a UUID string
+    let id: String
     let fromId: String
     let toId: String
     let text: String

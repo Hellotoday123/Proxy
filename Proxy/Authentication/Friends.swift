@@ -64,6 +64,13 @@ extension AppViewModel {
     func acceptFriendRequest(from requesterID: String) async {
         guard let myID = currentUser?.id else { return }
 
+        // Update local state first so the UI responds instantly (optimistic update).
+        currentUser?.pendingRequests.removeAll { $0 == requesterID }
+        currentUser?.friendIDs.append(requesterID)
+        if let ids = currentUser?.friendIDs {
+            await fetchFriends(ids: ids)
+        }
+
         let batch = db.batch()
         let myRef = db.collection("users").document(myID)
         let requesterRef = db.collection("users").document(requesterID)
@@ -79,15 +86,10 @@ extension AppViewModel {
 
         do {
             try await batch.commit()
-            // Update local state immediately so the UI reflects the change right away.
-            // Calling fetchCurrentUser() would create a new snapshot listener that delivers
-            // stale cached data first, causing the request to reappear briefly.
-            currentUser?.pendingRequests.removeAll { $0 == requesterID }
-            currentUser?.friendIDs.append(requesterID)
-            if let ids = currentUser?.friendIDs {
-                await fetchFriends(ids: ids)
-            }
         } catch {
+            // Roll back local state if the write failed
+            currentUser?.friendIDs.removeAll { $0 == requesterID }
+            currentUser?.pendingRequests.append(requesterID)
             print("DEBUG: Error accepting request")
         }
     }

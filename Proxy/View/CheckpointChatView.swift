@@ -16,8 +16,13 @@ struct CheckpointChatView: View {
     @State private var questionText = ""
     @State private var showSetQuestion = false
 
+    // Use the live checkpoint from the viewModel so hasQuestion stays up to date
+    var liveCheckpoint: Checkpoint {
+        viewModel.checkpoints.first(where: { $0.id == checkpoint.id }) ?? checkpoint
+    }
+
     var hasQuestion: Bool {
-        !checkpoint.question.isEmpty
+        !liveCheckpoint.question.isEmpty
     }
 
     var body: some View {
@@ -25,11 +30,11 @@ struct CheckpointChatView: View {
             VStack(spacing: 0) {
                 // Checkpoint header
                 VStack(spacing: 6) {
-                    Image(systemName: checkpoint.type == "school" ? "building.columns.fill" : checkpoint.type == "landmark" ? "mappin.circle.fill" : "leaf.fill")
+                    Image(systemName: liveCheckpoint.type == "school" ? "building.columns.fill" : liveCheckpoint.type == "landmark" ? "mappin.circle.fill" : "leaf.fill")
                         .font(.system(size: 28))
-                        .foregroundColor(checkpoint.type == "school" ? .purple : checkpoint.type == "landmark" ? .orange : .green)
+                        .foregroundColor(liveCheckpoint.type == "school" ? .purple : liveCheckpoint.type == "landmark" ? .orange : .green)
 
-                    Text(checkpoint.name)
+                    Text(liveCheckpoint.name)
                         .font(.headline)
 
                     if hasQuestion {
@@ -37,11 +42,11 @@ struct CheckpointChatView: View {
                             Text("Topic:")
                                 .font(.caption)
                                 .foregroundColor(.secondary)
-                            Text(checkpoint.question)
+                            Text(liveCheckpoint.question)
                                 .font(.subheadline.bold())
                                 .multilineTextAlignment(.center)
                                 .padding(.horizontal)
-                            Text("Started by \(checkpoint.questionByUsername)")
+                            Text("Started by \(liveCheckpoint.questionByUsername)")
                                 .font(.caption2)
                                 .foregroundColor(.secondary)
                         }
@@ -108,6 +113,13 @@ struct CheckpointChatView: View {
                             }
                         }
                         .padding()
+                    }
+                    .onAppear {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                            if let last = viewModel.checkpointMessages.last {
+                                proxy.scrollTo(last.id, anchor: .bottom)
+                            }
+                        }
                     }
                     .onChange(of: viewModel.checkpointMessages.count) { _ in
                         if let last = viewModel.checkpointMessages.last {

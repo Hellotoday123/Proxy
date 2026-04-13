@@ -14,6 +14,7 @@ struct MessagesInboxView: View {
     @State private var selectedTab = 0
     @State private var selectedFriend: AppUser? = nil
     @State private var showChat = false
+    @State private var localPendingRequests: [String] = []
 
     let brandOrange = Color(red: 1.0, green: 0.6, blue: 0.2)
 
@@ -85,6 +86,15 @@ struct MessagesInboxView: View {
         .onAppear {
             viewModel.fetchGroupChats()
             viewModel.fetchAllUsers()
+            localPendingRequests = viewModel.currentUser?.pendingRequests ?? []
+        }
+        .onChange(of: viewModel.currentUser?.pendingRequests ?? []) { newValue in
+            // Only add new requests — don't re-add ones the user already dismissed
+            for id in newValue {
+                if !localPendingRequests.contains(id) {
+                    localPendingRequests.append(id)
+                }
+            }
         }
         .sheet(isPresented: $showNewChatSheet) {
             NewChatPopupView()
@@ -95,13 +105,11 @@ struct MessagesInboxView: View {
     }
 
     private var friendRequestsSection: some View {
-        let pendingRequesters = viewModel.currentUser?.pendingRequests ?? []
-
-        return Group {
-            if !pendingRequesters.isEmpty {
+        Group {
+            if !localPendingRequests.isEmpty {
                 sectionHeader("Friend Requests", icon: "person.badge.clock.fill")
 
-                ForEach(pendingRequesters, id: \.self) { requesterID in
+                ForEach(localPendingRequests, id: \.self) { requesterID in
                     HStack(spacing: 12) {
                         Circle()
                             .fill(brandOrange.opacity(0.15))
@@ -123,37 +131,39 @@ struct MessagesInboxView: View {
                         Spacer()
 
                         HStack(spacing: 8) {
-
-                            HStack(spacing: 8) {
-
-                                Button {
-                                    Task { await viewModel.rejectFriendRequest(from: requesterID) }
-                                } label: {
-                                    Text("Decline")
-                                        .font(.system(size: 13, weight: .semibold))
-                                        .foregroundColor(.red)
-                                        .lineLimit(1)
-                                        .padding(.horizontal, 14)
-                                        .padding(.vertical, 7)
-                                        .background(Color.red.opacity(0.1))
-                                        .cornerRadius(12)
+                            Button {
+                                withAnimation {
+                                    localPendingRequests.removeAll { $0 == requesterID }
                                 }
-
-                                Button {
-                                    Task { await viewModel.acceptFriendRequest(from: requesterID) }
-                                } label: {
-                                    Text("Accept")
-                                        .font(.system(size: 13, weight: .bold))
-                                        .foregroundColor(.white)
-                                        .lineLimit(1)
-                                        .padding(.horizontal, 14)
-                                        .padding(.vertical, 7)
-                                        .background(brandOrange)
-                                        .cornerRadius(12)
-                                }
+                                Task { await viewModel.rejectFriendRequest(from: requesterID) }
+                            } label: {
+                                Text("Decline")
+                                    .font(.system(size: 13, weight: .semibold))
+                                    .foregroundColor(.red)
+                                    .lineLimit(1)
+                                    .padding(.horizontal, 14)
+                                    .padding(.vertical, 7)
+                                    .background(Color.red.opacity(0.1))
+                                    .cornerRadius(12)
                             }
-                            .fixedSize()
+
+                            Button {
+                                withAnimation {
+                                    localPendingRequests.removeAll { $0 == requesterID }
+                                }
+                                Task { await viewModel.acceptFriendRequest(from: requesterID) }
+                            } label: {
+                                Text("Accept")
+                                    .font(.system(size: 13, weight: .bold))
+                                    .foregroundColor(.white)
+                                    .lineLimit(1)
+                                    .padding(.horizontal, 14)
+                                    .padding(.vertical, 7)
+                                    .background(brandOrange)
+                                    .cornerRadius(12)
+                            }
                         }
+                        .fixedSize()
                     }
                     .padding(.horizontal, 16)
                     .padding(.vertical, 12)

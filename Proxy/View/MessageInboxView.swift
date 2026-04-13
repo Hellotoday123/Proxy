@@ -15,6 +15,7 @@ struct MessagesInboxView: View {
     @State private var selectedFriend: AppUser? = nil
     @State private var showChat = false
     @State private var localPendingRequests: [String] = []
+    @State private var dismissedRequestIDs: Set<String> = []
 
     let brandOrange = Color(red: 1.0, green: 0.6, blue: 0.2)
 
@@ -89,12 +90,8 @@ struct MessagesInboxView: View {
             localPendingRequests = viewModel.currentUser?.pendingRequests ?? []
         }
         .onChange(of: viewModel.currentUser?.pendingRequests ?? []) { newValue in
-            // Only add new requests — don't re-add ones the user already dismissed
-            for id in newValue {
-                if !localPendingRequests.contains(id) {
-                    localPendingRequests.append(id)
-                }
-            }
+            // Re-sync but never restore IDs the user already dismissed this session
+            localPendingRequests = newValue.filter { !dismissedRequestIDs.contains($0) }
         }
         .sheet(isPresented: $showNewChatSheet) {
             NewChatPopupView()
@@ -133,6 +130,7 @@ struct MessagesInboxView: View {
                         HStack(spacing: 8) {
                             Button {
                                 withAnimation {
+                                    dismissedRequestIDs.insert(requesterID)
                                     localPendingRequests.removeAll { $0 == requesterID }
                                 }
                                 Task { await viewModel.rejectFriendRequest(from: requesterID) }
@@ -149,6 +147,7 @@ struct MessagesInboxView: View {
 
                             Button {
                                 withAnimation {
+                                    dismissedRequestIDs.insert(requesterID)
                                     localPendingRequests.removeAll { $0 == requesterID }
                                 }
                                 Task { await viewModel.acceptFriendRequest(from: requesterID) }

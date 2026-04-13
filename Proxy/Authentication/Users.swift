@@ -18,11 +18,14 @@ extension AppViewModel {
         userListener = db.collection("users").document(uid).addSnapshotListener { snapshot, error in
             guard let document = snapshot, document.exists, let data = document.data() else { return }
 
+            // Skip snapshots that come from cache AND still have pending local writes —
+            // our optimistic update is already applied, so applying stale cache would undo it.
+            if document.metadata.isFromCache && document.metadata.hasPendingWrites { return }
+
             self.currentUser = AppUser(id: document.documentID, dict: data)
             self.fetchGroupChats()
 
             if let user = self.currentUser {
-            
                 if !user.friendIDs.isEmpty {
                     Task { await self.fetchFriends(ids: user.friendIDs) }
                 } else {

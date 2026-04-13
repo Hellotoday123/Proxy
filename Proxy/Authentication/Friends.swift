@@ -10,7 +10,7 @@ import FirebaseAuth
 import FirebaseFirestore
 
 extension AppViewModel {
-    
+
     func fetchAllUsers() {
         db.collection("users").getDocuments { snapshot, error in
             guard let documents = snapshot?.documents else {
@@ -91,7 +91,7 @@ extension AppViewModel {
             print("DEBUG: Error accepting request")
         }
     }
-    
+
     func withdrawFriendRequest(to targetUserID: String) async {
         guard let myID = currentUser?.id else { return }
 
@@ -153,5 +153,5 @@ extension AppViewModel {
             print("DEBUG: Failed to remove friend: \(error.localizedDescription)")
         }
     }
-    
+
 }

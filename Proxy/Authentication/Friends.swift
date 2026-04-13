@@ -111,16 +111,17 @@ extension AppViewModel {
     func rejectFriendRequest(from requesterID: String) async {
         guard let myID = currentUser?.id else { return }
 
+        // Optimistically remove from local state first
+        currentUser?.pendingRequests.removeAll { $0 == requesterID }
+
         do {
             try await db.collection("users").document(myID).updateData([
                 "pendingRequests": FieldValue.arrayRemove([requesterID])
             ])
-
-            fetchCurrentUser()
-
             print("DEBUG: Friend request declined")
-
         } catch {
+            // Roll back if write failed
+            currentUser?.pendingRequests.append(requesterID)
             print("DEBUG: Error rejecting request")
         }
     }
